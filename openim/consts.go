@@ -25,20 +25,20 @@ const (
 type MessageType = int32
 
 const (
-	TextMessage        MessageType = 101
-	ImageMessage       MessageType = 102
-	AudioMessage       MessageType = 103
-	VideoMessage       MessageType = 104
-	FileMessage        MessageType = 105
-	MentionMessage     MessageType = 106
-	LocationMessage    MessageType = 109
-	CustomMessage      MessageType = 110
-	SystemNotification MessageType = 1400
+	MessageType_Text               MessageType = 101
+	MessageType_Image              MessageType = 102
+	MessageType_Audio              MessageType = 103
+	MessageType_Video              MessageType = 104
+	MessageType_File               MessageType = 105
+	MessageType_Mention            MessageType = 106
+	MessageType_Location           MessageType = 109
+	MessageType_Custom             MessageType = 110
+	MessageType_SystemNotification MessageType = 1400
 )
 
 type ConversationType = int32
 
 const (
-	SingleChat ConversationType = 1
-	GroupChat  ConversationType = 3
+	ConversationType_Single ConversationType = 1
+	ConversationType_Group  ConversationType = 3
 )
