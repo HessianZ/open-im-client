@@ -7,53 +7,10 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/google/uuid"
 )
-
-type OpenIMError interface {
-	GetErrCode() int
-	GetErrMsg() string
-	GetErrDetail() string
-	Error() string
-}
-type OpenIMClient struct {
-	apiBaseUrl  string
-	token       string
-	expireTime  time.Time
-	tokenLock   sync.Mutex
-	httpClient  *http.Client
-	adminID     string
-	adminSecret string
-	debug       bool
-}
-
-type openIMErrorSt struct {
-	ErrCode int    `json:"errCode"`
-	ErrMsg  string `json:"errMsg"`
-	ErrDlt  string `json:"errDlt"`
-}
-
-type OpenIMResponse[T any] struct {
-	openIMErrorSt
-	Data T `json:"data"`
-}
-
-func (r *OpenIMResponse[T]) GetErrCode() int {
-	return r.openIMErrorSt.ErrCode
-}
-func (r *OpenIMResponse[T]) GetErrMsg() string {
-	return r.openIMErrorSt.ErrMsg
-}
-func (r *OpenIMResponse[T]) GetErrDetail() string {
-	return r.openIMErrorSt.ErrDlt
-}
-
-func (e *OpenIMResponse[T]) Error() string {
-	return fmt.Sprintf("openim error[%d] %s - %s", e.ErrCode, e.ErrMsg, e.ErrDlt)
-}
 
 func NewOpenIMClient(apiBaseUrl, adminID, adminSecret string, debug bool) *OpenIMClient {
 	httpClient := &http.Client{
@@ -112,6 +69,9 @@ func (c *OpenIMClient) request(method, path string, reqBody any, respData any) (
 		log.Printf("Error reading response body: %v", err)
 		return
 	}
+	if respData == nil {
+		respData = OpenIMResponse[struct{}]{}
+	}
 	err = json.Unmarshal(respBody, &respData)
 	if err != nil {
 		log.Printf("Error unmarshalling response body: %v - %s", err, string(respBody))
@@ -146,31 +106,4 @@ func (c *OpenIMClient) loadToken(force bool) (err error) {
 	c.token = tokenData.Token
 	c.expireTime = time.Now().Add(time.Duration(tokenData.ExpireTimeSeconds) * time.Second)
 	return
-}
-
-// POST /user/user_register
-func (c *OpenIMClient) UserRegister(userID, nickname, faceURL string) error {
-	data := map[string]any{
-		"users": []map[string]any{
-			{
-				"userID":   userID,
-				"nickname": nickname,
-				"faceURL":  faceURL,
-			},
-		},
-	}
-	return c.request(http.MethodPost, "/user/user_register", data, nil)
-}
-
-// POST /user/update_user_info_ex
-func (c *OpenIMClient) UpdateUserInfo(userID, nickname, faceURL, extra string) error {
-	data := map[string]any{
-		"userInfo": map[string]any{
-			"userID":   userID,
-			"nickname": nickname,
-			"faceURL":  faceURL,
-			"ex":       extra,
-		},
-	}
-	return c.request(http.MethodPost, "/user/update_user_info_ex", data, nil)
 }

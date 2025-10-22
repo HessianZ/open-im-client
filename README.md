@@ -1,10 +1,12 @@
 # Open IM Client
+OpenIM REST API SDK。
 
-Open IM Client 是一个封装了访问 Open IM Server HTTP API 的开源客户端库。
+Open IM Client 是一个封装了访问 Open IM Server REST API 的开源客户端库。
+
 
 ## 特性
 
-- 封装完整的 Open IM Server HTTP API
+- 封装 Open IM Server REST API
 - 易于集成和使用的客户端接口
 - 遵循 Open IM Server 相同的开源协议
 
@@ -32,6 +34,16 @@ func main() {
 }
 
 ```
+
+## 完成状态
+| 模块 | 状态 |
+| ----------- | ----------- |
+| 认证管理 | ✅已完成 |
+| 用户管理 | 🚧进行中 |
+| 关系链管理 | ✅已完成 |
+| 群组管理 | 🚧进行中 |
+| 会话管理 | ✅已完成 |
+| 消息管理 | 🚧进行中 |
 
 ## 开源协议
 
