@@ -33,15 +33,16 @@ func main() {
     debug := true
     client := openim.NewOpenIMClient(apiBaseUrl, adminID, adminSecret, debug)
 
-    req :=  apistruct.SendMsg{
+    req := apistruct.SendMsg{
         SendID:           "100001",
+        RecvID:           "100002",
         SenderPlatformID: openim.PlatformID_Admin,
         ContentType:      openim.MessageType_Text,
         SessionType:      openim.ConversationType_Single,
         Content:          map[string]any{
             "content": "Hello World!",
         },
-        // Ex:               string(extBytes),
+        // Ex:               `{"extra": "hohoho~"}`,
     }
     resp, err := client.SendMessage(req)
     if err != nil {
