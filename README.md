@@ -1,7 +1,7 @@
 # Open IM Client
 OpenIM REST API SDK。
 
-Open IM Client 是一个封装了访问 Open IM Server REST API 的开源客户端库。
+Open IM Client 是一个封装了访问 Open IM Server REST API 的开源GO客户端库。
 
 
 ## 特性
@@ -20,8 +20,11 @@ go get -u github.com/HessianZ/open-im-client
 ## 使用示例
 
 ```go
-// 在这里添加使用示例
-import "github.com/HessianZ/open-im-client/openim"
+import (
+    "log"
+    "github.com/HessianZ/open-im-client/openim"
+	"github.com/HessianZ/open-im-client/openim/apistruct"
+)
 
 func main() {
     apiBaseUrl := "https://open-im.example.com"
@@ -30,7 +33,22 @@ func main() {
     debug := true
     client := openim.NewOpenIMClient(apiBaseUrl, adminID, adminSecret, debug)
 
-    resp := client.SendMessage(...)
+    req :=  apistruct.SendMsg{
+        SendID:           "100001",
+        SenderPlatformID: openim.PlatformID_Admin,
+        ContentType:      openim.MessageType_Text,
+        SessionType:      openim.ConversationType_Single,
+        Content:          map[string]any{
+            "content": "Hello World!",
+        },
+        // Ex:               string(extBytes),
+    }
+    resp, err := client.SendMessage(req)
+    if err != nil {
+        log.Fatal(err)
+        return
+    }
+    log.Printf("%+v", resp)
 }
 
 ```
