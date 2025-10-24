@@ -39,3 +39,21 @@ func (c *OpenIMClient) SendBusinessNotification(data SendBusinessNotificationReq
 	err := c.request(http.MethodPost, "/msg/send_business_notification", data, &resp)
 	return resp.Data, err
 }
+
+// 删除用户所有消息
+// 从服务端删除用户所有消息，不影响客户端已同步消息。
+// POST /msg/user_clear_all_msg
+func (c *OpenIMClient) UserClearAllMsg(data *msg.UserClearAllMsgReq) error {
+	resp := OpenIMResponse[*msg.UserClearAllMsgResp]{}
+	err := c.request(http.MethodPost, "/msg/user_clear_all_msg", data, &resp)
+	return err
+}
+
+// 撤回消息
+// 模拟用户撤回一条已发送的消息。
+// POST /msg/revoke_msg
+func (c *OpenIMClient) RevokeMsg(data *msg.RevokeMsgReq) (*msg.SendMsgResp, error) {
+	resp := OpenIMResponse[*msg.SendMsgResp]{}
+	err := c.request(http.MethodPost, "/msg/revoke_msg", data, &resp)
+	return resp.Data, err
+}
