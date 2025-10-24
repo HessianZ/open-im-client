@@ -57,3 +57,11 @@ func (c *OpenIMClient) RevokeMsg(data *msg.RevokeMsgReq) (*msg.SendMsgResp, erro
 	err := c.request(http.MethodPost, "/msg/revoke_msg", data, &resp)
 	return resp.Data, err
 }
+
+// 搜索消息
+// POST /msg/search_msg
+func (c *OpenIMClient) SearchMsg(data *msg.SearchMessageReq) (*msg.SearchMessageResp, error) {
+	resp := OpenIMResponse[*msg.SearchMessageResp]{}
+	err := c.request(http.MethodPost, "/msg/search_msg", data, &resp)
+	return resp.Data, err
+}
