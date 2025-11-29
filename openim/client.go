@@ -14,8 +14,6 @@ import (
 
 type OpenIMClient struct {
 	apiBaseUrl    string
-	token         string
-	expireTime    time.Time
 	tokenProvider TokenProvider
 	httpClient    *http.Client
 	adminID       string
@@ -55,7 +53,11 @@ func (c *OpenIMClient) request(method, path string, reqBody any, respData any) (
 		if err != nil {
 			return
 		}
-		req.Header.Set("token", c.token)
+		if token, err := c.tokenProvider.GetToken(); err != nil {
+			return err
+		} else {
+			req.Header.Set("token", token)
+		}
 	}
 
 	if c.debug {
@@ -95,8 +97,7 @@ func (c *OpenIMClient) request(method, path string, reqBody any, respData any) (
 			log.Printf("OpenIMError: %+v", respWithType)
 			if respWithType.GetErrCode() == ErrCode_TokenNotExists {
 				// 获取token失败，需要重新获取
-				c.token = ""
-				c.expireTime = time.Time{}
+				c.tokenProvider.SetToken("", 0)
 			}
 			err = respWithType
 		}
