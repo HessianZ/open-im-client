@@ -12,16 +12,28 @@ import (
 	"github.com/google/uuid"
 )
 
+type OpenIMClient struct {
+	apiBaseUrl    string
+	token         string
+	expireTime    time.Time
+	tokenProvider TokenProvider
+	httpClient    *http.Client
+	adminID       string
+	adminSecret   string
+	debug         bool
+}
+
 func NewOpenIMClient(apiBaseUrl, adminID, adminSecret string, debug bool) *OpenIMClient {
 	httpClient := &http.Client{
 		Timeout: 5 * time.Second,
 	}
 	return &OpenIMClient{
-		apiBaseUrl:  apiBaseUrl,
-		adminID:     adminID,
-		adminSecret: adminSecret,
-		debug:       debug,
-		httpClient:  httpClient,
+		apiBaseUrl:    apiBaseUrl,
+		adminID:       adminID,
+		adminSecret:   adminSecret,
+		debug:         debug,
+		httpClient:    httpClient,
+		tokenProvider: &MemoryTokenStore{},
 	}
 }
 
@@ -92,18 +104,24 @@ func (c *OpenIMClient) request(method, path string, reqBody any, respData any) (
 
 	return
 }
-func (c *OpenIMClient) loadToken(force bool) (err error) {
-	c.tokenLock.Lock()
-	defer c.tokenLock.Unlock()
 
-	if c.token != "" && c.expireTime.After(time.Now()) && !force {
+func (c *OpenIMClient) SetTokenProvider(provider TokenProvider) {
+	c.tokenProvider = provider
+}
+
+func (c *OpenIMClient) loadToken(force bool) (err error) {
+	token, err := c.tokenProvider.getToken()
+
+	if token != "" && !force {
 		return
 	}
 	tokenData, err := c.GetAdminToken()
 	if err != nil {
 		return err
 	}
-	c.token = tokenData.Token
-	c.expireTime = time.Now().Add(time.Duration(tokenData.ExpireTimeSeconds) * time.Second)
+	err = c.tokenProvider.setToken(tokenData.Token, tokenData.ExpireTimeSeconds)
+	if err != nil {
+		return
+	}
 	return
 }

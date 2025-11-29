@@ -2,9 +2,6 @@ package openim
 
 import (
 	"fmt"
-	"net/http"
-	"sync"
-	"time"
 )
 
 type OpenIMError interface {
@@ -13,17 +10,6 @@ type OpenIMError interface {
 	GetErrDetail() string
 	Error() string
 }
-type OpenIMClient struct {
-	apiBaseUrl  string
-	token       string
-	expireTime  time.Time
-	tokenLock   sync.Mutex
-	httpClient  *http.Client
-	adminID     string
-	adminSecret string
-	debug       bool
-}
-
 type openIMErrorSt struct {
 	ErrCode int    `json:"errCode"`
 	ErrMsg  string `json:"errMsg"`
