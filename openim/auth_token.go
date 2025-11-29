@@ -6,8 +6,8 @@ import (
 )
 
 type TokenProvider interface {
-	getToken() (token string, err error)
-	setToken(token string, exp int64) error
+	GetToken() (token string, err error)
+	SetToken(token string, exp int64) error
 }
 
 type MemoryTokenStore struct {
@@ -17,7 +17,7 @@ type MemoryTokenStore struct {
 }
 
 // getToken implements TokenProvider.
-func (c *MemoryTokenStore) getToken() (token string, err error) {
+func (c *MemoryTokenStore) GetToken() (token string, err error) {
 	c.tokenLock.RLock()
 	defer c.tokenLock.RUnlock()
 
@@ -29,10 +29,33 @@ func (c *MemoryTokenStore) getToken() (token string, err error) {
 }
 
 // setToken implements TokenProvider.
-func (c *MemoryTokenStore) setToken(token string, exp int64) error {
+func (c *MemoryTokenStore) SetToken(token string, exp int64) error {
 	c.tokenLock.Lock()
 	defer c.tokenLock.Unlock()
 	c.token = token
 	c.expireTime = time.Now().Add(time.Duration(exp) * time.Second)
 	return nil
+}
+
+type TokenGetter func() (token string, err error)
+type TokenSetter func(token string, exp int64) error
+
+type FuncTokenProvider struct {
+	getter TokenGetter
+	setter TokenSetter
+}
+
+func NewFuncTokenProvider(getter TokenGetter, setter TokenSetter) *FuncTokenProvider {
+	return &FuncTokenProvider{
+		getter: getter,
+		setter: setter,
+	}
+}
+
+func (c *FuncTokenProvider) GetToken() (token string, err error) {
+	return c.getter()
+}
+
+func (c *FuncTokenProvider) SetToken(token string, exp int64) error {
+	return c.setter(token, exp)
 }

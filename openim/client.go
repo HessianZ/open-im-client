@@ -110,7 +110,7 @@ func (c *OpenIMClient) SetTokenProvider(provider TokenProvider) {
 }
 
 func (c *OpenIMClient) loadToken(force bool) (err error) {
-	token, err := c.tokenProvider.getToken()
+	token, err := c.tokenProvider.GetToken()
 
 	if token != "" && !force {
 		return
@@ -119,7 +119,7 @@ func (c *OpenIMClient) loadToken(force bool) (err error) {
 	if err != nil {
 		return err
 	}
-	err = c.tokenProvider.setToken(tokenData.Token, tokenData.ExpireTimeSeconds)
+	err = c.tokenProvider.SetToken(tokenData.Token, tokenData.ExpireTimeSeconds)
 	if err != nil {
 		return
 	}
